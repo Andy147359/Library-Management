@@ -16,7 +16,7 @@ const routes = [
         meta: { roles: ["admin"] },
         children: [
             {
-                path: "", // Mặc định sẽ chuyển hướng đến trang quản lý sách
+                path: "",
                 redirect: "/admin/books"
             },
             {
