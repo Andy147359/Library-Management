@@ -145,18 +145,6 @@ const handleLogout = () => {
     margin-right: 10px;
 }
 
-.avatar {
-    width: 35px;
-    height: 35px;
-    background-color: #3498db;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-}
-
 .content-area {
     padding: 20px;
 }

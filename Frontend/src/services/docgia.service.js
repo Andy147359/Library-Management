@@ -1,5 +1,5 @@
 import createApiClient from "./api.service";
-class DocGiaService {
+class DocgiaService {
     constructor(baseUrl = "/api/docgia") {
         this.api = createApiClient(baseUrl);
     }
@@ -21,5 +21,14 @@ class DocGiaService {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
+    async login(dienThoai, password) {
+        const data = { dienThoai, password };
+        const res = (await this.api.post(`/login`, data));
+        return res?.data;
+    }
+    async findByPhone(dienThoai) {
+        return (await this.api.get(`/phone/${dienThoai}`)).data;
+    }
+
 }
-export default new DocGiaService();
+export default new DocgiaService();

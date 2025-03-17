@@ -2,7 +2,7 @@
     <div class="book-management">
         <div class="header-actions">
             <h1>Quản lý Sách</h1>
-            <router-link to="/admin/books/add" class="btn-add">
+            <router-link to="/admin/add-book" class="btn-add">
                 <i class="fas fa-plus"></i> Thêm sách mới
             </router-link>
         </div>
@@ -12,13 +12,11 @@
                 <i class="fas fa-search"></i>
                 <input type="text" v-model="searchQuery" placeholder="Tìm kiếm sách..." @input="filterBooks" />
             </div>
-            <select v-model="filterCategory" @change="filterBooks">
-                <option value="">Tất cả thể loại</option>
-                <option value="Tiểu thuyết">Tiểu thuyết</option>
-                <option value="Kỹ năng">Kỹ năng</option>
-                <option value="Kinh tế">Kinh tế</option>
-                <option value="Lịch sử">Lịch sử</option>
-                <option value="Giáo dục">Giáo dục</option>
+            <select v-model="filterAuthor" @change="filterBooks">
+                <option value="">Tất cả tác giả</option>
+                <option v-for="author in uniqueAuthors" :key="author" :value="author">
+                    {{ author }}
+                </option>
             </select>
         </div>
 
@@ -26,25 +24,25 @@
             <table class="book-table">
                 <thead>
                     <tr>
-                        <th>STT</th>
+                        <th>Ảnh</th>
                         <th>Mã sách</th>
                         <th>Tên sách</th>
                         <th>Tác giả</th>
-                        <th>Thể loại</th>
-                        <th>Số lượng có sẵn</th>
+                        <th>Nhà xuất bản</th>
                         <th>Số lượng sách</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(book, index) in filteredBooks" :key="book.id">
-                        <td>{{ index + 1 }}</td>
-                        <td>{{ book.code }}</td>
-                        <td>{{ book.title }}</td>
-                        <td>{{ book.author }}</td>
-                        <td>{{ book.category }}</td>
-                        <td>{{ book.available }}</td>
-                        <td>{{ book.total }}</td>
+                        <td>
+                            <img :src="book.imageUrl" class="bookImage" />
+                        </td>
+                        <td>{{ book._id }}</td>
+                        <td>{{ book.tensach }}</td>
+                        <td>{{ book.tacgia }}</td>
+                        <td>{{ book.nhaxuatban.tennxb }}</td>
+                        <td>{{ book.soquyen }}</td>
                         <td class="actions">
                             <button class="btn-edit" @click="editBook(book)">
                                 <i class="fas fa-edit"></i>
@@ -60,63 +58,49 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- Modal xác nhận xóa -->
-        <div class="modal" v-if="showDeleteModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Xác nhận xóa</h2>
-                    <span class="close" @click="showDeleteModal = false">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa sách "<strong>{{ bookToDelete.title }}</strong>"?</p>
-                    <p>Thao tác này không thể hoàn tác.</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-cancel" @click="showDeleteModal = false">Hủy</button>
-                    <button class="btn-confirm" @click="deleteBook">Xóa sách</button>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import SachService from "@/services/sach.service";
 
 const router = useRouter();
+const allBooks = ref([]);
 
-// Dữ liệu cứng - Danh sách sách
-const allBooks = ref([
-    { id: 1, code: 'BOOK001', title: 'Đắc Nhân Tâm', author: 'Dale Carnegie', category: 'Kỹ năng', available: 5, total: 10 },
-    { id: 2, code: 'BOOK002', title: 'Nhà Giả Kim', author: 'Paulo Coelho', category: 'Tiểu thuyết', available: 3, total: 8 },
-    { id: 3, code: 'BOOK003', title: 'Tư duy phản biện', author: 'Richard Paul', category: 'Giáo dục', available: 7, total: 15 },
-    { id: 4, code: 'BOOK004', title: 'Sapiens: Lược sử loài người', author: 'Yuval Noah Harari', category: 'Lịch sử', available: 2, total: 5 },
-    { id: 5, code: 'BOOK005', title: 'Đọc Vị Bất Kỳ Ai', author: 'David J. Lieberman', category: 'Kỹ năng', available: 6, total: 12 },
-    { id: 6, code: 'BOOK006', title: 'Tiếng Gọi Nơi Hoang Dã', author: 'Jack London', category: 'Tiểu thuyết', available: 4, total: 7 },
-]);
+const fetchBooks = async () => {
+    try {
+        const data = await SachService.getAll();
+        allBooks.value = data;
+        filterBooks();
+    } catch (error) {
+        console.error("Lỗi khi gọi API lấy sách:", error);
+        alert("Lỗi khi tải dữ liệu sách. Vui lòng thử lại sau.");
+    }
+};
 
 // State cho tìm kiếm và lọc
 const searchQuery = ref('');
-const filterCategory = ref('');
-const filteredBooks = ref([...allBooks.value]);
+const filterAuthor = ref('');
+const filteredBooks = ref([]);
 
-// State cho modal xóa
-const showDeleteModal = ref(false);
-const bookToDelete = ref(null);
+// Danh sách tác giả duy nhất
+const uniqueAuthors = computed(() => {
+    return [...new Set(allBooks.value.map(book => book.tacgia))];
+});
 
-// Lọc sách theo tìm kiếm (tên sách, tác giả, mã sách) và thể loại
+// Lọc sách theo tìm kiếm (tên sách, tác giả, mã sách) và tác giả
 const filterBooks = () => {
     filteredBooks.value = allBooks.value.filter(book => {
         const matchSearch =
-            book.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            book.author.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            book.code.toLowerCase().includes(searchQuery.value.toLowerCase());
+            book.tensach.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            book.tacgia.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            book._id.toLowerCase().includes(searchQuery.value.toLowerCase());
 
-        const matchCategory = filterCategory.value ? book.category === filterCategory.value : true;
+        const matchAuthor = filterAuthor.value ? book.tacgia === filterAuthor.value : true;
 
-        return matchSearch && matchCategory;
+        return matchSearch && matchAuthor;
     });
 };
 
@@ -140,9 +124,10 @@ const deleteBook = () => {
 
 // Khởi tạo
 onMounted(() => {
-    filterBooks();
+    fetchBooks();
 });
 </script>
+
 
 
 <style scoped>
@@ -215,14 +200,17 @@ select {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .book-table th,
 .book-table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    /* border-bottom: 1px solid #eee; */
+    border: 1px solid black;
+    box-sizing: border-box;
+    /* Đảm bảo padding và border không làm thay đổi kích thước */
+
 }
 
 .book-table th {
@@ -236,8 +224,9 @@ select {
 }
 
 .actions {
-    display: flex;
-    gap: 8px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
 .btn-edit,
@@ -246,11 +235,13 @@ select {
     border-radius: 4px;
     padding: 6px 10px;
     cursor: pointer;
+    text-align: center;
 }
 
 .btn-edit {
     background-color: #3498db;
     color: white;
+    margin-right: 5px
 }
 
 .btn-delete {
@@ -335,5 +326,11 @@ select {
 .btn-confirm {
     background-color: #e74c3c;
     color: white;
+}
+
+.bookImage {
+    width: 60px;
+    height: 100px;
+    object-fit: cover;
 }
 </style>

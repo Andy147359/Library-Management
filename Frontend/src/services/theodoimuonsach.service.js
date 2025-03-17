@@ -1,6 +1,6 @@
 import createApiClient from "./api.service";
-class TheoDoiMuonSachService {
-    constructor(baseUrl = "/api/theodoimuonsach") {
+class MuonService {
+    constructor(baseUrl = "/api/muon") {
         this.api = createApiClient(baseUrl);
     }
     async getAll() {
@@ -22,4 +22,4 @@ class TheoDoiMuonSachService {
         return (await this.api.delete(`/${id}`)).data;
     }
 }
-export default new TheoDoiMuonSachService();
+export default new MuonService();

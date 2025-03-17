@@ -1,5 +1,5 @@
 import createApiClient from "./api.service";
-class NhaXuatBanService {
+class NhaxuatbanService {
     constructor(baseUrl = "/api/nhaxuatban") {
         this.api = createApiClient(baseUrl);
     }
@@ -21,5 +21,6 @@ class NhaXuatBanService {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
+
 }
-export default new NhaXuatBanService();
+export default new NhaxuatbanService();

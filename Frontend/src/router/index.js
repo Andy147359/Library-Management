@@ -7,13 +7,11 @@ const routes = [
     },
     {
         path: "/user",
-        name: "User",
         component: () => import("@/views/user/UserView.vue"),
         meta: { roles: ["user", "admin", ""] },
     },
     {
         path: "/admin",
-        name: "Admin",
         component: () => import("@/views/admin/AdminView.vue"),
         meta: { roles: ["admin"] },
         children: [
@@ -23,19 +21,21 @@ const routes = [
             },
             {
                 path: "books",
-                name: "AdminBooks",
                 component: () => import("@/views/admin/BooksManagementView.vue"),
                 meta: { roles: ["admin"] },
             },
             {
+                path: "add-book",
+                component: () => import("@/components/AddBook.vue"),
+                meta: { roles: ["admin"] }
+            },
+            {
                 path: "borrowing",
-                name: "AdminBorrowing",
                 component: () => import("@/views/admin/BorrowingManagementView.vue"),
                 meta: { roles: ["admin"] },
             },
             {
                 path: "readers",
-                name: "AdminReaders",
                 component: () => import("@/views/admin/ReadersManagementView.vue"),
                 meta: { roles: ["admin"] },
             }
@@ -43,12 +43,10 @@ const routes = [
     },
     {
         path: "/not-authorized",
-        name: "NotAuthorized",
         component: () => import("@/views/NotAuthorized.vue"),
     },
     {
         path: "/:pathMatch(.*)*",
-        name: "Notfound",
         component: () => import("@/views/NotFound.vue"),
     },
 ];

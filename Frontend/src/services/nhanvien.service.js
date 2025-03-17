@@ -1,5 +1,5 @@
 import createApiClient from "./api.service";
-class NhanVienService {
+class NhanvienService {
     constructor(baseUrl = "/api/nhanvien") {
         this.api = createApiClient(baseUrl);
     }
@@ -21,5 +21,10 @@ class NhanVienService {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
+    async login(dienThoai, password) {
+        const data = { dienThoai, password };
+        const res = (await this.api.post(`/login`, data));
+        return res?.data;
+    }
 }
-export default new NhanVienService();
+export default new NhanvienService();
