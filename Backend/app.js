@@ -1,13 +1,23 @@
 const express = require("express");
 const cors = require("cors");
-const contactsRouter = require("./app/routes/contact.route")
 const ApiError = require("./app/api-error")
 
 const app = express();
 
+const docgiaRouter = require("./app/routes/docgia.route");
+const muonRouter = require("./app/routes/muon.route");
+const nhanvienRouter = require("./app/routes/nhanvien.route");
+const nxbRouter = require("./app/routes/nhaxuatban.route");
+const sachRouter = require("./app/routes/sach.route");
+
 app.use(cors());
 app.use(express.json());
-app.use("/api/contacts", contactsRouter)
+
+app.use("/api/docgia", docgiaRouter);
+app.use("/api/muon", muonRouter);
+app.use("/api/nhanvien", nhanvienRouter);
+app.use("/api/nhaxuatban", nxbRouter);
+app.use("/api/sach", sachRouter);
 
 // handle 404 response
 app.use((req, res, next) => {
@@ -22,9 +32,5 @@ app.use((error, req, res, next) => {
         message: error.message || "Internal server error"
     })
 })
-
-app.get("/", (req, res) => {
-    res.json({message: "Wellcome to contact book application"});
-});
 
 module.exports = app;
