@@ -17,7 +17,7 @@ const routes = [
         children: [
             {
                 path: "",
-                redirect: "/admin/books"
+                redirect: "/admin/books" // test
             },
             {
                 path: "books",
