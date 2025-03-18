@@ -16,7 +16,7 @@ class DocgiaService {
             phai: payload.phai,
             diaChi: payload.diaChi,
             dienThoai: payload.dienThoai,
-            password: payload.password
+            password: payload.password,
         };
 
         Object.keys(docgia).forEach(key => docgia[key] === undefined && delete docgia[key]);

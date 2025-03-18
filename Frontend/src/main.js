@@ -21,7 +21,6 @@ const vuetify = createVuetify({
     components,
     directives,
 })
-localStorage.setItem("userRole", "admin")
 
 createApp(App)
     .use(router)

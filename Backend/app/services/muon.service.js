@@ -23,9 +23,6 @@ class MuonService {
             maSach: new ObjectId(payload.maSach),
             ngayMuon: today,
             ngayTra: payload.ngayTra ? this.parseDate(payload.ngayTra) : null,
-            ngayHenTra: payload.ngayHenTra,
-            // ? this.parseDate(payload.ngayHenTra)
-            // : new Date(new Date().setDate(today.getDate() + 7)), 
             status: payload.status || "Đang mượn"
         };
 
@@ -107,7 +104,6 @@ class MuonService {
                     maSach: 1,
                     ngayMuon: 1,
                     ngayTra: 1,
-                    ngayHenTra: 1,
                     status: 1,
                     docGiaInfo: 1,  // Thông tin độc giả
                     sachInfo: 1,    // Thông tin sách
@@ -119,9 +115,6 @@ class MuonService {
         console.log(result);
         return result;
     }
-
-
-
 
     // Phương thức để tìm thông tin mượn sách theo ID
     async findById(id) {
@@ -164,7 +157,6 @@ class MuonService {
                     maSach: 1,
                     ngayMuon: 1,
                     ngayTra: 1,
-                    ngayHenTra: 1,
                     status: 1,
                     docGiaInfo: 1,  // Thông tin độc giả
                     sachInfo: 1     // Thông tin sách
@@ -209,107 +201,6 @@ class MuonService {
         const result = await this.Muon.deleteMany({});
         return result.deletedCount;
     }
-
-    async returnBook(id) {
-        const muon = await this.Muon.findOne({ _id: new ObjectId(id) });
-
-        // Cập nhật ngày trả 
-        const ngayTra = new Date();
-
-        const result = await this.Muon.findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: { ngayTra, status: 'Đã trả' } },
-            { returnDocument: "after" }
-        );
-
-        // Tăng số lượng sách sau khi trả sách
-        await this.Sach.updateOne(
-            { _id: new ObjectId(muon.maSach) },
-            { $inc: { soquyen: 1 } }
-        );
-
-        return result;
-    }
-
-    async extendBorrow(id) {
-        const muon = await this.Muon.findOne({ _id: new ObjectId(id) });
-
-        // Cập nhật ngày hẹn trả mới
-        const ngayHenTraMoi = new Date(new Date().setDate(muon.ngayHenTra.getDate() + 7));
-
-        const result = await this.Muon.findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: { ngayHenTra: ngayHenTraMoi } },
-            { returnDocument: "after" }
-        );
-
-        return result;
-    }
-
-    async requestExtend(id) {
-        const muon = await this.Muon.findOne({ _id: new ObjectId(id) });
-
-        // Cập nhật status thành 'Yêu cầu gia hạn'
-        const result = await this.Muon.findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: { status: 'Yêu cầu gia hạn' } },
-            { returnDocument: "after" }
-        );
-
-        return result;
-    }
-
-    async rejectRequestExtend(id) {
-        const muon = await this.Muon.findOne({ _id: new ObjectId(id) });
-
-        // Cập nhật status trở về 'Đang mượn'
-        const result = await this.Muon.findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: { status: 'Đang mượn' } },
-            { returnDocument: "after" }
-        );
-
-        return result;
-    }
-
-    async acceptRequestExtend(id) {
-        const muon = await this.Muon.findOne({ _id: new ObjectId(id) });
-        if (!muon) {
-            throw new ApiError(404, `Thông tin mượn sách với ID ${id} không tồn tại.`);
-        }
-
-        // Cập nhật ngày hẹn trả mới bằng cách cộng thêm 7 ngày vào ngày hẹn trả cũ
-        const ngayHenTraCu = new Date(muon.ngayHenTra);
-        const ngayHenTraMoi = new Date(ngayHenTraCu);
-        ngayHenTraMoi.setDate(ngayHenTraMoi.getDate() + 7);
-
-        // Cập nhật status thành 'Đã gia hạn' và ngày hẹn trả mới
-        const result = await this.Muon.findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: { ngayHenTra: ngayHenTraMoi, status: "Đang mượn" } },
-            { returnDocument: "after" }
-        );
-
-        return result;
-    }
-
-    async choMuon(id) {
-        const muon = await this.Muon.findOne({ _id: new ObjectId(id) });
-        if (!muon) {
-            throw new ApiError(404, `Thông tin mượn sách với ID ${id} không tồn tại.`);
-        }
-
-        // Cập nhật status thành 'Đang mượn'
-        const result = await this.Muon.findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: { status: 'Đang mượn' } },
-            { returnDocument: "after" }
-        );
-
-        return result;
-    }
-
-
 }
 
 module.exports = MuonService;

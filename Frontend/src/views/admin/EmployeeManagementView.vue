@@ -1,9 +1,9 @@
 <template>
-  <div class="reader-management">
+  <div class="employee-management">
     <div class="header-actions">
-      <h1>Quản lý Độc Giả</h1>
-      <router-link to="/admin/add-reader" class="btn-add">
-        <i class="fas fa-plus"></i> Thêm độc giả mới
+      <h1>Quản lý Nhân Viên</h1>
+      <router-link to="/admin/add-employee" class="btn-add">
+        <i class="fas fa-plus"></i> Thêm nhân viên mới
       </router-link>
     </div>
 
@@ -13,41 +13,42 @@
         <input
           type="text"
           v-model="searchQuery"
-          placeholder="Tìm kiếm độc giả..."
-          @input="filterReaders"
+          placeholder="Tìm kiếm nhân viên..."
+          @input="filterEmployees"
         />
       </div>
     </div>
 
-    <div class="reader-table-container">
-      <table class="reader-table">
+    <div class="employee-table-container">
+      <table class="employee-table">
         <thead>
           <tr>
-            <th>Mã độc giả</th>
+            <th>Mã nhân viên</th>
             <th>Họ và tên</th>
-            <th>Ngày sinh</th>
-            <th>Phái</th>
+            <th>Chức vụ</th>
             <th>Địa chỉ</th>
             <th>Điện thoại</th>
             <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(reader, index) in filteredReaders" :key="reader.id">
-            <td>{{ reader._id }}</td>
-            <td>{{ reader.hoLot }} {{ reader.ten }}</td>
-            <td>{{ reader.ngaySinh }}</td>
-            <td>{{ reader.phai }}</td>
-            <td>{{ reader.diaChi }}</td>
-            <td>{{ reader.dienThoai }}</td>
+          <tr
+            v-for="(employee, index) in filteredEmployees"
+            :key="employee._id"
+          >
+            <td>{{ employee._id }}</td>
+            <td>{{ employee.hotennv }}</td>
+            <td>{{ employee.chucvu }}</td>
+            <td>{{ employee.diachi }}</td>
+            <td>{{ employee.sodienthoai }}</td>
             <td class="actions">
-              <button class="btn-edit" @click="editReader(reader)">
+              <button class="btn-edit" @click="editEmployee(employee)">
                 <i class="fas fa-edit"></i>
               </button>
             </td>
           </tr>
-          <tr v-if="filteredReaders.length === 0">
-            <td colspan="7" class="no-data">Không có dữ liệu</td>
+          <tr v-if="filteredEmployees.length === 0">
+            <td colspan="6" class="no-data">Không có dữ liệu</td>
           </tr>
         </tbody>
       </table>
@@ -58,49 +59,51 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import DocgiaService from "@/services/docgia.service";
+import EmployeeService from "@/services/nhanvien.service";
 
 const router = useRouter();
-const allReaders = ref([]);
+const allEmployees = ref([]);
 const searchQuery = ref("");
-const filteredReaders = ref([]);
+const filteredEmployees = ref([]);
 
-// Lọc độc giả theo tìm kiếm (họ lót, tên, mã độc giả)
-const filterReaders = () => {
-  filteredReaders.value = allReaders.value.filter((reader) => {
+// Lọc nhân viên theo tìm kiếm (họ tên, chức vụ, mã nhân viên)
+const filterEmployees = () => {
+  filteredEmployees.value = allEmployees.value.filter((employee) => {
     const matchSearch =
-      reader.hoLot.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      reader.ten.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      reader._id.toLowerCase().includes(searchQuery.value.toLowerCase());
+      employee.hotennv
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      employee.chucvu.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      employee._id.toLowerCase().includes(searchQuery.value.toLowerCase());
 
     return matchSearch;
   });
 };
 
-// Chuyển đến trang chỉnh sửa độc giả
-const editReader = (reader) => {
-  router.push(`/admin/edit-reader/${reader._id}`);
+// Chuyển đến trang chỉnh sửa nhân viên
+const editEmployee = (employee) => {
+  router.push(`/admin/edit-employee/${employee._id}`);
 };
 
-// Lấy danh sách độc giả từ back end khi component mounted
-const fetchReaders = async () => {
+// Lấy danh sách nhân viên từ back end khi component mounted
+const fetchEmployees = async () => {
   try {
-    const data = await DocgiaService.getAll();
-    allReaders.value = data.filter((reader) => !reader.deleted);
-    filterReaders();
+    const data = await EmployeeService.getAll();
+    allEmployees.value = data.filter((employee) => !employee.deleted);
+    filterEmployees();
   } catch (error) {
-    console.error("Lỗi khi gọi API lấy độc giả:", error);
+    console.error("Lỗi khi gọi API lấy nhân viên:", error);
   }
 };
 
 // Khởi tạo
 onMounted(() => {
-  fetchReaders();
+  fetchEmployees();
 });
 </script>
 
 <style scoped>
-.reader-management {
+.employee-management {
   width: 100%;
   padding: 0 10px;
 }
@@ -154,31 +157,31 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-.reader-table-container {
+.employee-table-container {
   overflow-x: auto;
 }
 
-.reader-table {
+.employee-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
 }
 
-.reader-table th,
-.reader-table td {
+.employee-table th,
+.employee-table td {
   padding: 12px 15px;
   text-align: left;
   border: 1px solid black;
   box-sizing: border-box;
 }
 
-.reader-table th {
+.employee-table th {
   background-color: #f5f7fa;
   color: #2c3e50;
   font-weight: 600;
 }
 
-.reader-table tr:hover {
+.employee-table tr:hover {
   background-color: #f8f8f8;
 }
 
@@ -197,6 +200,7 @@ onMounted(() => {
   text-align: center;
   background-color: #3498db;
   color: white;
+  margin-right: 5px;
 }
 
 .no-data {
