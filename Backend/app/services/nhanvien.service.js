@@ -61,6 +61,7 @@ class NhanVienService {
 
     // Phương thức để xóa nhân viên
     async delete(id) {
+        d
         const result = await this.NhanVien.findOneAndDelete({ _id: new ObjectId(id) });
         if (!result) {
             throw new ApiError(404, `Nhân viên với ID ${id} không tồn tại.`);

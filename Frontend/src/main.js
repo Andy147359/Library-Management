@@ -11,18 +11,9 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from "./router";
 
-// Vuetify
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
 
-const vuetify = createVuetify({
-    components,
-    directives,
-})
+createApp(App).use(router).mount("#app");
 
-createApp(App)
-    .use(router)
-    .use(vuetify)
-    .mount("#app");
+// Thiết lập tiêu đề trang
+const userRole = localStorage.getItem('userRole');
+document.title = userRole === 'admin' ? 'Admin' : 'User';

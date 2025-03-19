@@ -9,6 +9,20 @@ const routes = [
         path: "/user",
         component: () => import("@/views/user/UserView.vue"),
         meta: { roles: ["user", "admin", ""] },
+        children: [
+            {
+                path: "",
+                redirect: "/user/books"
+            },
+            {
+                path: "books",
+                component: () => import("@/views/user/BookList.vue"),
+            },
+            {
+                path: "borrow-history",
+                component: () => import("@/views/user/BorrowHistory.vue"),
+            }
+        ],
     },
     {
         path: "/admin",
@@ -21,7 +35,7 @@ const routes = [
             },
             {
                 path: "books",
-                component: () => import("@/views/admin/BooksManagementView.vue"),
+                component: () => import("@/views/admin/BooksManagement.vue"),
                 meta: { roles: ["admin"] },
             },
             {
@@ -36,7 +50,7 @@ const routes = [
             },
             {
                 path: "borrowing",
-                component: () => import("@/views/admin/BorrowingManagementView.vue"),
+                component: () => import("@/views/admin/BorrowingManagement.vue"),
                 meta: { roles: ["admin"] },
             },
             {
@@ -46,7 +60,7 @@ const routes = [
             },
             {
                 path: "readers",
-                component: () => import("@/views/admin/ReadersManagementView.vue"),
+                component: () => import("@/views/admin/ReadersManagement.vue"),
                 meta: { roles: ["admin"] }
             },
             {
@@ -61,7 +75,7 @@ const routes = [
             },
             {
                 path: "publishers",
-                component: () => import("@/views/admin/PublisherManagementView.vue"),
+                component: () => import("@/views/admin/PublisherManagement.vue"),
                 meta: { roles: ["admin"] }
             },
             {
@@ -76,7 +90,7 @@ const routes = [
             },
             {
                 path: "employees",
-                component: () => import("@/views/admin/EmployeeManagementView.vue"),
+                component: () => import("@/views/admin/EmployeeManagement.vue"),
                 meta: { roles: ["admin"] }
             },
             {
@@ -94,12 +108,10 @@ const routes = [
     {
         path: "/user-login",
         component: () => import("@/views/auth/UserLogin.vue"),
-        meta: { roles: [""] },
     },
     {
         path: "/admin-login",
         component: () => import("@/views/auth/AdminLogin.vue"),
-        meta: { roles: [""] },
     },
     {
         path: "/not-authorized",
@@ -120,8 +132,11 @@ router.beforeEach((to, from, next) => {
     // Lấy vai trò người dùng từ localstorage
     const userRole = localStorage.getItem("userRole");
 
-    // Kiểm tra nếu route yêu cầu roles và người dùng không có vai trò phù hợp
-    if (to.meta.roles?.includes(userRole) === false) {
+    if (userRole === null && to.meta.roles?.length > 0) {
+        // Nếu chưa đăng nhập thì chuyển đến trang đăng nhập
+        next("/user-login");
+    } else if (to.meta.roles?.includes(userRole) === false) {
+        // Nếu người dùng có role không hơp lệ thì chuyển
         next("/not-authorized");
     } else {
         next();

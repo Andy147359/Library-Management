@@ -39,9 +39,16 @@ const password = ref("");
 
 const submitForm = async () => {
   try {
-    await DocGiaService.login(phoneNumber.value, password.value);
+    const response = await DocGiaService.login(
+      phoneNumber.value,
+      password.value
+    );
     alert("Đăng nhập thành công!");
+    localStorage.setItem("hoLot", response?.hoLot);
+    localStorage.setItem("ten", response?.ten);
+    localStorage.setItem("userId", response?._id);
     localStorage.setItem("userRole", "user");
+
     router.push("/user");
   } catch (error) {
     console.error("Lỗi khi đăng nhập:", error);

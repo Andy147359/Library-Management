@@ -112,7 +112,7 @@ class MuonService {
         ]).toArray();
 
         // Debug: Kiểm tra kết quả trả về
-        console.log(result);
+        // console.log(result);
         return result;
     }
 
@@ -176,6 +176,10 @@ class MuonService {
     // Phương thức để cập nhật thông tin mượn sách
     async update(id, payload) {
         const muon = this.extractMuonData(payload);
+        if (muon.status === "Đã trả") {
+            muon.ngayTra = new Date();
+        }
+        console.log(muon);
         const result = await this.Muon.findOneAndUpdate(
             { _id: new ObjectId(id) },
             { $set: muon },

@@ -98,15 +98,36 @@ class SachService {
 
     // Phương thức để cập nhật thông tin sách
     async update(id, payload) {
-        const sach = this.extractSachData(payload);
+        // Lấy thông tin sách hiện tại
+        const existingSach = await this.findById(id);
+        if (!existingSach) {
+            throw new ApiError(404, `Sách với ID ${id} không tồn tại.`);
+        }
+
+        // Trích xuất dữ liệu sách từ payload
+        const sachUpdates = this.extractSachData(payload);
+
+        // Kết hợp dữ liệu sách hiện tại với dữ liệu cập nhật
+        const updatedSach = { ...existingSach, ...sachUpdates };
+
+        // Đảm bảo rằng các thuộc tính không có trong payload sẽ không bị ảnh hưởng
+        for (const key in sachUpdates) {
+            if (sachUpdates[key] === null) {
+                delete updatedSach[key];
+            }
+        }
+
+        // Cập nhật thông tin sách trong cơ sở dữ liệu
         const result = await this.Sach.findOneAndUpdate(
             { _id: new ObjectId(id) },
-            { $set: sach },
+            { $set: updatedSach },
             { returnDocument: "after" }
         );
+
         if (!result) {
             throw new ApiError(404, `Sách với ID ${id} không tồn tại.`);
         }
+
         return result;
     }
 

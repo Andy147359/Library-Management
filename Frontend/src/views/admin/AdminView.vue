@@ -6,6 +6,7 @@
         <h2>Quản lý Thư viện</h2>
       </div>
       <div class="user-info">
+        Nhân viên:
         <div>{{ user.hoten }}</div>
         ({{ user.chucvu }})
       </div>
